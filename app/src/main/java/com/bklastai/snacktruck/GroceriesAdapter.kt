@@ -9,10 +9,14 @@ data class Grocery(val name: String, val id: Int, val type: GroceryType, var isS
 
 enum class GroceryType {
     Veggie,
-    Nonveggie
+    Nonveggie,
+    Undefined
 }
 
 class GroceriesAdapter(var groceries: Array<Grocery>) : RecyclerView.Adapter<GroceriesAdapter.GroceriesViewHolder>() {
+    var filterType: GroceryType? = GroceryType.Undefined
+    private var veggieGroceries: Array<Grocery> = emptyArray()
+    private var nonveggieGroceries: Array<Grocery> = emptyArray()
 
     class GroceriesViewHolder(val checkBox: CheckBox) : RecyclerView.ViewHolder(checkBox)
 
@@ -22,26 +26,43 @@ class GroceriesAdapter(var groceries: Array<Grocery>) : RecyclerView.Adapter<Gro
     }
 
     override fun onBindViewHolder(holder: GroceriesViewHolder, position: Int) {
-        holder.checkBox.text = groceries[position].name
-        holder.checkBox.isChecked = groceries[position].isSelected
+        val items = getItems(filterType)
+        holder.checkBox.text = items[position].name
+        holder.checkBox.isChecked = items[position].isSelected
         holder.checkBox.setOnClickListener {
-            groceries[position].isSelected = !groceries[position].isSelected
-            holder.checkBox.isChecked = groceries[position].isSelected
+            items[position].isSelected = !items[position].isSelected
+            holder.checkBox.isChecked = items[position].isSelected
         }
     }
 
-    fun setValues(newDataset: Array<Grocery>) {
+    fun setData(newDataset: ArrayList<Grocery>) {
         // what if some purchasedGroceries are already selected?
-        groceries = newDataset
+        groceries = newDataset.toTypedArray()
+        veggieGroceries = newDataset.filter({ it.type == GroceryType.Veggie }).toTypedArray()
+        nonveggieGroceries = newDataset.filter({ it.type == GroceryType.Nonveggie }).toTypedArray()
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = groceries.size
+    fun getItems(type: GroceryType?): Array<Grocery> {
+        return when (type) {
+            GroceryType.Undefined -> groceries
+            GroceryType.Veggie -> veggieGroceries
+            GroceryType.Nonveggie -> nonveggieGroceries
+            null -> emptyArray()
+        }
+    }
 
-    fun onOrderConfirmed() {
+    override fun getItemCount() = getItems(filterType).size
+
+    fun resetGrocerySelection() {
         for (grocery in groceries) {
             grocery.isSelected = false
         }
+        notifyDataSetChanged()
+    }
+
+    fun filterGroceries(type: GroceryType?) {
+        filterType = type
         notifyDataSetChanged()
     }
 }

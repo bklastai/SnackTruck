@@ -10,7 +10,7 @@ class TrucksActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trucks)
 
-        findViewById<RecyclerView>(R.id.truck_rv).apply {
+        findViewById<RecyclerView>(R.id.truck_rv)?.apply {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = TruckListAdapter(listOf("Pike's Place", "Capitol Hill", "U District").toTypedArray())

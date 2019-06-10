@@ -1,9 +1,19 @@
 <resources>
     <string name="app_name">SnackTruck</string>
+
+    <!-- UI elements-->
     <string name="veggies">Veggies</string>
     <string name="nonveggies">Non-veggies</string>
     <string name="submit">Submit</string>
+
+    <!-- toast texts -->
     <string name="submit_request_error">Error! Order was not placed.</string>
     <string name="submit_no_groceries_error">No groceries selected!</string>
+
+    <!-- dialog texts -->
     <string name="order_confirmation_dialog_title">Order confirmed</string>
+    <string name="warning_dialog_title">Warning</string>
+    <string name="warning_dialog_message">Your grocery selection includes items that are currently not visible.</string>
+    <string name="warning_dialog_proceed_anyway">Proceed anyway</string>
+    <string name="warning_dialog_show_full_list">Show full list</string>
 </resources>

@@ -1,13 +1,11 @@
 package com.bklastai.snacktruck
 
 import android.os.Bundle
-import android.view.View
+import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.Volley
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import org.json.JSONArray
 import org.json.JSONObject
@@ -21,34 +19,54 @@ class GroceriesActivity : AppCompatActivity() {
     }
 
     lateinit var truckId: String
-    lateinit var requestQueue: RequestQueue
-    var groceryAdapter = GroceriesAdapter(ArrayList<Grocery>().toTypedArray())
+    lateinit var veggieCheckbox: CheckBox
+    lateinit var nonveggieCheckbox: CheckBox
+
+
+    var groceryAdapter = GroceriesAdapter(emptyArray())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_groceries)
 
         truckId = intent?.extras?.getString(INTENT_EXTRA_TRUCK_ID, "") ?: ""
-        requestQueue = Volley.newRequestQueue(this)
         if (truckId.isEmpty()) { throw IllegalStateException("Truck ID was not found") }
         supportActionBar?.title = truckId
 
-        findViewById<RecyclerView>(R.id.groceries_rv).apply {
+        initViews()
+        fetchGroceries()
+        startFCMService()// stub method
+    }
+
+    private fun initViews() {
+        findViewById<RecyclerView>(R.id.groceries_rv)?.apply {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = groceryAdapter
         }
-        findViewById<ExtendedFloatingActionButton>(R.id.submit_fab).apply {
-            setOnClickListener { submitOrder() }
-        }
+        findViewById<ExtendedFloatingActionButton>(R.id.submit_fab)?.apply { setOnClickListener { submitOrder() } }
+        veggieCheckbox = findViewById(R.id.checkbox_veggies)
+        nonveggieCheckbox = findViewById(R.id.checkbox_nonveggies)
+        veggieCheckbox.setOnCheckedChangeListener { _, _ -> updateFilters() }
+        nonveggieCheckbox.setOnCheckedChangeListener { _, _ -> updateFilters() }
+    }
 
-        fetchGroceries()
-        startFCMService(this)
+    private fun updateFilters() {
+        when {
+            veggieCheckbox.isChecked && nonveggieCheckbox.isChecked -> groceryAdapter.filterGroceries(GroceryType.Undefined)
+            veggieCheckbox.isChecked && !nonveggieCheckbox.isChecked -> groceryAdapter.filterGroceries(GroceryType.Veggie)
+            !veggieCheckbox.isChecked && nonveggieCheckbox.isChecked -> groceryAdapter.filterGroceries(GroceryType.Nonveggie)
+            !veggieCheckbox.isChecked && !nonveggieCheckbox.isChecked -> groceryAdapter.filterGroceries(null)
+        }
     }
 
     private fun getSelectedGroceries(): ArrayList<Grocery> {
+        return getSelectedGroceriesByType(GroceryType.Undefined)
+    }
+
+    private fun getSelectedGroceriesByType(type: GroceryType?): ArrayList<Grocery> {
         val selectedProducts = ArrayList<Grocery>()
-        for (grocery in groceryAdapter.groceries) {
+        for (grocery in groceryAdapter.getItems(type)) {
             if (!grocery.isSelected) continue
             selectedProducts.add(grocery)
         }
@@ -56,8 +74,11 @@ class GroceriesActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog() {
+        // IMHO the homework assignment has a bad design, the confirmation dialog should allow user to confirm or deny
+        // the grocery selection, but I followed the instructions..
+
         val dialogView = layoutInflater.inflate(
-            R.layout.order_confirmation_dialog, null) as RecyclerView
+            R.layout.order_confirmation_dialog_rv, null) as RecyclerView
         dialogView.setHasFixedSize(true)
         dialogView.layoutManager = LinearLayoutManager(this)
         dialogView.adapter = PurchasedGroceriesAdapter(getSelectedGroceries().toTypedArray())
@@ -65,14 +86,18 @@ class GroceriesActivity : AppCompatActivity() {
         AlertDialog.Builder(this, R.style.DialogTheme)
             .setTitle(R.string.order_confirmation_dialog_title)
             .setView(dialogView)
-            .setOnDismissListener { groceryAdapter.onOrderConfirmed() }
+            .setOnDismissListener {
+                groceryAdapter.resetGrocerySelection()
+                veggieCheckbox.isChecked = true
+                nonveggieCheckbox.isChecked = true
+            }
             .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
     private fun fetchGroceries() {
         // in a complete app, I would make a JSONArrayRequest, if it failed, I would pass en empty array in
-        // groceryAdapter.setValues and show error text in a TextView located in place of the RecyclerView (which would
+        // groceryAdapter.setData and show error text in a TextView located in place of the RecyclerView (which would
         // have to be added in activity_groceries.xml
         //
         // if it the request was successful, then the response would equal the `jsonGroceries` object seen below
@@ -91,24 +116,32 @@ class GroceriesActivity : AppCompatActivity() {
                 groceries.add(Grocery(name, id, groceryServerTypeToClientType[typeStr]!!, false))
             }
         }
-        groceryAdapter.setValues(groceries.toTypedArray())
-    }
-
-    fun onFilterCheckboxClicked(v: View) {
-        when {
-            v.id == R.id.checkbox_veggies -> {}
-            v.id == R.id.checkbox_nonveggies -> {}
-        }
+        groceryAdapter.setData(groceries)
     }
 
     private fun submitOrder() {
-        // in a real app, I'd submit the order making a POST request, which would require a truckId and a json payload
-        // (see commented out code for details)
+        // in a real app, I'd submit the order by making a POST request, which would require a truckId and a json payload
+        // (see commented out code below). Note that the stubbed out code is meant to exemplify the procedure that I
+        // would follow, in reality, RequestQueue would have to be a singleton, the url would be stored elsewhere etc.
         if (getSelectedGroceries().isEmpty()) {
             toast(R.string.submit_no_groceries_error)
             return
         }
-        showConfirmationDialog()
+        if (groceryAdapter.filterType != GroceryType.Undefined &&
+            getSelectedGroceriesByType(groceryAdapter.filterType).size != getSelectedGroceries().size) {
+            AlertDialog.Builder(this, R.style.DialogTheme)
+                .setTitle(R.string.warning_dialog_title)
+                .setMessage(R.string.warning_dialog_message)
+                .setNegativeButton(R.string.warning_dialog_proceed_anyway) { _, _ ->
+                    showConfirmationDialog() }
+                .setPositiveButton(R.string.warning_dialog_show_full_list) { _, _ ->
+                    veggieCheckbox.isChecked = true
+                    nonveggieCheckbox.isChecked = true }
+                .show()
+        } else {
+            showConfirmationDialog()
+        }
+
 //        val selectedProducts = getSelectedGroceries()
 //        val payload = getOrderPayload(selectedProducts)
 //
@@ -120,10 +153,10 @@ class GroceriesActivity : AppCompatActivity() {
 //            Response.ErrorListener {
 //                toast(R.string.submit_request_error)
 //            })
-//        requestQueue.add(submitOrderRequest)
+//        Volley.newRequestQueue(this).add(submitOrderRequest)// all commented out code is hypothetical but it's
     }
 
-    private fun startFCMService(groceriesActivity: GroceriesActivity) {
+    private fun startFCMService() {
         // this is a stub to indicate that, in a real app, I would:
         //
         // start FirebaseMessagingService passing in the `truckId`, to configure the service to only listen to updates
