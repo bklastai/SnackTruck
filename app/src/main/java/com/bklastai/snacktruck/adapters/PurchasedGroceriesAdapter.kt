@@ -1,9 +1,10 @@
-package com.bklastai.snacktruck
+package com.bklastai.snacktruck.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bklastai.snacktruck.R
 
 class PurchasedGroceriesAdapter(var purchasedGroceries: Array<Grocery>) :
     RecyclerView.Adapter<PurchasedGroceriesAdapter.PurchasedGroceriesViewHolder>() {

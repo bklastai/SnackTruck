@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".TrucksActivity">
+        <activity android:name=".activities.TrucksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW" />
@@ -20,8 +20,8 @@
         </activity>
 
         <activity
-            android:name=".GroceriesActivity"
-            android:parentActivityName=".TrucksActivity"/>
+            android:name=".activities.GroceriesActivity"
+            android:parentActivityName=".activities.TrucksActivity"/>
 
     </application>
 
