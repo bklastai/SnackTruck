@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_device_id">key_device_id</string>
+
+    <!--dummy server response used to imitate parsing-->
+    <string name="groceries_jsonarray">[{"name":"Frenchfries","id":1,"type":"Vegetarian"},{"name":"Veggieburger","id":2,"type":"Vegetarian"},{"name":"Carrots","id":3,"type":"Vegetarian"},{"name":"Apple","id":4,"type":"Vegetarian"},{"name":"Banana","id":5,"type":"Vegetarian"},{"name":"Milkshake","id":6,"type":"Vegetarian"},{"name":"Cheeseburger","id":7,"type":"Non-vegetarian"},{"name":"Hamburger","id":8,"type":"Non-vegetarian"},{"name":"Hotdog","id":9,"type":"Non-vegetarian"}]</string>
+</resources>
