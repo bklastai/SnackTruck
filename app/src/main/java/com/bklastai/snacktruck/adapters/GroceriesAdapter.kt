@@ -26,8 +26,7 @@ class GroceriesAdapter(var groceries: ArrayList<Grocery>) :
     inner class GroceriesViewHolder(val checkBox: CheckBox) : RecyclerView.ViewHolder(checkBox)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroceriesViewHolder {
-        return GroceriesViewHolder(
-            LayoutInflater.from(parent.context)
+        return GroceriesViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.grocery_list_item, parent, false) as CheckBox
         )
     }
@@ -45,7 +44,7 @@ class GroceriesAdapter(var groceries: ArrayList<Grocery>) :
     fun setData(newGroceries: ArrayList<Grocery>) {
         synchronized(groceries) {
             // reset groceries preserving the selection state
-            val oldGroceries = groceries
+            val oldGroceries = groceries.toMutableList() as ArrayList
             groceries.clear()
             for (grocery in newGroceries) {
                 val existingGroceryWithSameId = oldGroceries.find { gr -> gr.id == grocery.id }

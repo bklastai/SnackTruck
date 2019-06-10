@@ -120,14 +120,7 @@ class GroceriesActivity : AppCompatActivity() {
             val id: Int? = if (jgrocery?.has("id") != false) jgrocery?.optInt("id") else null
             if (!name.isNullOrEmpty() && !typeStr.isNullOrEmpty() && id != null &&
                 groceryServerTypeToClientType.containsKey(typeStr)) {
-                groceries.add(
-                    Grocery(
-                        name,
-                        id,
-                        groceryServerTypeToClientType[typeStr]!!,
-                        false
-                    )
-                )
+                groceries.add(Grocery(name, id, groceryServerTypeToClientType[typeStr]!!, false))
             }
         }
         groceryAdapter.setData(groceries)
@@ -191,7 +184,8 @@ class GroceriesActivity : AppCompatActivity() {
 
     private fun addProduct(name: String, type: GroceryType) {
         // in a complete app, I would make a PUT request to update the shared database, FirebaseMessagingService would
-        // then take care of notifying other devices
+        // then take care of notifying other devices.
+        // Note, name.hashCode() may appear random, please see comment above Grocery constructor.
 
         val newProduct = Grocery(name, name.hashCode(), type, false)
         groceryAdapter.groceries.add(newProduct)
