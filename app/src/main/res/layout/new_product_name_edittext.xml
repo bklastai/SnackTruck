@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditText
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/new_product_name_et"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/add_product_hint"
+    android:inputType="text"
+    android:padding="24dp"/>

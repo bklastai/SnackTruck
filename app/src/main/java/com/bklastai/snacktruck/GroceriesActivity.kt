@@ -1,7 +1,13 @@
 package com.bklastai.snacktruck
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.CheckBox
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -119,6 +125,65 @@ class GroceriesActivity : AppCompatActivity() {
         groceryAdapter.setData(groceries)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.groceries_activity_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_item_add_product) {
+            showAddProductDialog()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showAddProductDialog() {
+        val typeOptions = arrayOf(safeGetString(R.string.vegetarian), safeGetString(R.string.nonvegetarian))
+        var type = GroceryType.Undefined
+        val edittext = layoutInflater.inflate(R.layout.new_product_name_edittext, null) as EditText
+
+        val dialog = AlertDialog.Builder(this, R.style.DialogTheme)
+            .setTitle(R.string.add_product)
+            .setSingleChoiceItems(typeOptions, -1) { _, which ->
+                type = if (which == 0) GroceryType.Veggie else GroceryType.Nonveggie
+            }
+            .setView(edittext)
+            .setPositiveButton(R.string.save, null)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+        dialog.show()
+
+        // hast to be set after dialog is created so we can pass it in maybeAddProduct()
+        edittext.setOnKeyListener { _, keyCode, _ ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                maybeAddProduct(edittext, type, dialog)
+            }
+            return@setOnKeyListener true
+        }
+
+        // hast to be called after dialog.show() so we prevent dialog dismissal in certain scenarios
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
+            maybeAddProduct(edittext, type, dialog)
+        }
+    }
+
+    private fun maybeAddProduct(edittext: EditText, type: GroceryType, dialog: AlertDialog) {
+        when {
+            edittext.text.isNullOrEmpty() -> toast(safeGetString(R.string.name_missing))
+            type == GroceryType.Undefined -> toast(safeGetString(R.string.type_missing))
+            else -> {
+                addProduct(edittext.text.toString(), type)
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private fun addProduct(name: String, type: GroceryType) {
+        val newProduct = Grocery(name, name.hashCode(), type, false)
+    }
+
     private fun submitOrder() {
         // in a real app, I'd submit the order by making a POST request, which would require a truckId and a json payload
         // (see commented out code below). Note that the stubbed out code is meant to exemplify the procedure that I
@@ -165,6 +230,7 @@ class GroceriesActivity : AppCompatActivity() {
         // When the notification is received, we would call GroceriesActivity.fetchGroceries() again.
     }
 
+    // this method is used in the stubbed out code in submitOrder, so I did not delete it
     private fun getOrderPayload(selectedProducts: ArrayList<Grocery>): JSONObject {
         var accumulatedProductIdsAsJson = "{\"productIds\"=["
         for (count in 0 until selectedProducts.size) {

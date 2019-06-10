@@ -13,7 +13,15 @@
     <!-- dialog texts -->
     <string name="order_confirmation_dialog_title">Order confirmed</string>
     <string name="warning_dialog_title">Warning</string>
-    <string name="warning_dialog_message">Your grocery selection includes items that are currently not visible.</string>
+    <string name="warning_dialog_message">Your grocery selection includes items that are not currently visible.</string>
     <string name="warning_dialog_proceed_anyway">Proceed anyway</string>
     <string name="warning_dialog_show_full_list">Show full list</string>
+    <string name="add_product">Add product</string>
+    <string name="add_product_hint">Strawberry</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="vegetarian">Vegetarian</string>
+    <string name="nonvegetarian">Non-vegetarian</string>
+    <string name="name_missing">Grocery name field is empty</string>
+    <string name="type_missing">Grocery type is not selected</string>
 </resources>

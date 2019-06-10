@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
 
+// in a real app grocery ID would be computed by the server and would not appear in the constructor
 data class Grocery(val name: String, val id: Int, val type: GroceryType, var isSelected: Boolean)
 
 enum class GroceryType {
