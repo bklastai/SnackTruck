@@ -15,6 +15,9 @@ class TrucksActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.truck_rv)?.apply {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
+            // note, trucks list should be populated by parsing an API response, similarly to the API response
+            // simulation shown in GroceriesActivity.fetchGroceries(). This is just a dummy list of trucks to show
+            // the navigation flow, the real implementation would involve web services.
             this.adapter = TruckListAdapter(
                 listOf(
                     "Pike's Place",
