@@ -10,58 +10,59 @@
     <CheckBox
         android:id="@+id/checkbox_veggies"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="50dp"
         android:text="@string/veggies"
+        style="@style/PrimaryText"
         android:checked="true"
         android:onClick="onFilterCheckboxClicked"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/guideline_mid_screen_horizontally"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_below_filters"/>
+        android:background="@color/darkerGreyBackground"/>
 
     <CheckBox
         android:id="@+id/checkbox_nonveggies"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="50dp"
         android:text="@string/nonveggies"
+        style="@style/PrimaryText"
         android:checked="true"
         android:onClick="onFilterCheckboxClicked"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/guideline_mid_screen_horizontally"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_below_filters"/>
+        android:background="@color/darkerGreyBackground"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groceries_rv"
         android:scrollbars="vertical"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/guideline_below_filters"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_veggies"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
         android:id="@+id/submit_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="@string/submit"
-        android:src="@drawable/fab_background"
-        android:layout_margin="30dp" />
+        android:layout_margin="20dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_mid_screen_horizontally"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintWidth_percent="0.5"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_below_filters"
-        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="horizontal"/>
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

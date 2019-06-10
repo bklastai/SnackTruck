@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    style="@style/SecondaryText"
+    android:drawablePadding="5dp"
+    android:drawableStart="@drawable/fab_background"
+    android:drawableLeft="@drawable/fab_background"
+    android:gravity="center_vertical"/>

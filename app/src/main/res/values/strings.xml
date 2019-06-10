@@ -5,4 +5,5 @@
     <string name="submit">Submit</string>
     <string name="submit_request_error">Error! Order was not placed.</string>
     <string name="submit_no_groceries_error">No groceries selected!</string>
+    <string name="order_confirmation_dialog_title">Order confirmed</string>
 </resources>

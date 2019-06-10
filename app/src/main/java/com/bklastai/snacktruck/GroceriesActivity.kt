@@ -2,17 +2,13 @@ package com.bklastai.snacktruck
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.IllegalStateException
@@ -23,64 +19,31 @@ class GroceriesActivity : AppCompatActivity() {
             "Vegetarian" to GroceryType.Veggie,
             "Non-vegetarian" to GroceryType.Nonveggie)
     }
+
     lateinit var truckId: String
-    val requestQueue = Volley.newRequestQueue(this)
-
+    lateinit var requestQueue: RequestQueue
     var groceryAdapter = GroceriesAdapter(ArrayList<Grocery>().toTypedArray())
-
-//    lateinit var submitFAB: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_groceries)
 
         truckId = intent?.extras?.getString(INTENT_EXTRA_TRUCK_ID, "") ?: ""
+        requestQueue = Volley.newRequestQueue(this)
         if (truckId.isEmpty()) { throw IllegalStateException("Truck ID was not found") }
-        putStringPref(R.string.key_device_id, truckId)
+        supportActionBar?.title = truckId
 
         findViewById<RecyclerView>(R.id.groceries_rv).apply {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = groceryAdapter
         }
-        findViewById<FloatingActionButton>(R.id.submit_fab).apply {
+        findViewById<ExtendedFloatingActionButton>(R.id.submit_fab).apply {
             setOnClickListener { submitOrder() }
         }
 
         fetchGroceries()
         startFCMService(this)
-    }
-
-    private fun submitOrder() {
-        // in a real app, I'd submit the order making a POST request, which would require a truckId and a json payload
-        // (see commented out code for details)
-        if (getSelectedGroceries().isEmpty()) {
-            toast(R.string.submit_no_groceries_error)
-            return
-        }
-        showConfirmationDialog()
-//        val selectedProducts = getSelectedGroceries()
-//        val payload = getOrderPayload(selectedProducts)
-//
-//        val url = String.format("http://groceryorder.snacktruck.com/truck/%s/placeOrder", truckId)
-//        val submitOrderRequest = JsonObjectRequest(Request.Method.POST, url, payload,
-//            Response.Listener<JSONObject> {
-//                showConfirmationDialog()
-//            },
-//            Response.ErrorListener {
-//                toast(R.string.submit_request_error)
-//            })
-//        requestQueue.add(submitOrderRequest)
-    }
-
-    private fun getOrderPayload(selectedProducts: ArrayList<Grocery>): JSONObject {
-        var accumulatedProductIdsAsJson = "{\"productIds\"=["
-        for (count in 0 until selectedProducts.size) {
-            val product = selectedProducts[count]
-            accumulatedProductIdsAsJson += (product.id.toString() +
-                    if (count != selectedProducts.lastIndex) "," else "]}")
-        }
-        return JSONObject(accumulatedProductIdsAsJson)
     }
 
     private fun getSelectedGroceries(): ArrayList<Grocery> {
@@ -93,16 +56,18 @@ class GroceriesActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog() {
-//        val builder = AlertDialog.Builder(this).
-    }
+        val dialogView = layoutInflater.inflate(
+            R.layout.order_confirmation_dialog, null) as RecyclerView
+        dialogView.setHasFixedSize(true)
+        dialogView.layoutManager = LinearLayoutManager(this)
+        dialogView.adapter = PurchasedGroceriesAdapter(getSelectedGroceries().toTypedArray())
 
-    private fun startFCMService(groceriesActivity: GroceriesActivity) {
-        // this is a stub to indicate that, in a real app, I would:
-        //
-        // start FirebaseMessagingService passing in the `truckId`, to configure the service to only listen to updates
-        // to the grocery list of this specific truck.
-        //
-        // When the notification is received, we would call GroceriesActivity.fetchGroceries() again.
+        AlertDialog.Builder(this, R.style.DialogTheme)
+            .setTitle(R.string.order_confirmation_dialog_title)
+            .setView(dialogView)
+            .setOnDismissListener { groceryAdapter.onOrderConfirmed() }
+            .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun fetchGroceries() {
@@ -134,5 +99,46 @@ class GroceriesActivity : AppCompatActivity() {
             v.id == R.id.checkbox_veggies -> {}
             v.id == R.id.checkbox_nonveggies -> {}
         }
+    }
+
+    private fun submitOrder() {
+        // in a real app, I'd submit the order making a POST request, which would require a truckId and a json payload
+        // (see commented out code for details)
+        if (getSelectedGroceries().isEmpty()) {
+            toast(R.string.submit_no_groceries_error)
+            return
+        }
+        showConfirmationDialog()
+//        val selectedProducts = getSelectedGroceries()
+//        val payload = getOrderPayload(selectedProducts)
+//
+//        val url = String.format("http://groceryorder.snacktruck.com/truck/%s/placeOrder", truckId)
+//        val submitOrderRequest = JsonObjectRequest(Request.Method.POST, url, payload,
+//            Response.Listener<JSONObject> {
+//                showConfirmationDialog()
+//            },
+//            Response.ErrorListener {
+//                toast(R.string.submit_request_error)
+//            })
+//        requestQueue.add(submitOrderRequest)
+    }
+
+    private fun startFCMService(groceriesActivity: GroceriesActivity) {
+        // this is a stub to indicate that, in a real app, I would:
+        //
+        // start FirebaseMessagingService passing in the `truckId`, to configure the service to only listen to updates
+        // to the grocery list of this specific truck.
+        //
+        // When the notification is received, we would call GroceriesActivity.fetchGroceries() again.
+    }
+
+    private fun getOrderPayload(selectedProducts: ArrayList<Grocery>): JSONObject {
+        var accumulatedProductIdsAsJson = "{\"productIds\"=["
+        for (count in 0 until selectedProducts.size) {
+            val product = selectedProducts[count]
+            accumulatedProductIdsAsJson += (product.id.toString() +
+                    if (count != selectedProducts.lastIndex) "," else "]}")
+        }
+        return JSONObject(accumulatedProductIdsAsJson)
     }
 }

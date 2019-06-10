@@ -8,4 +8,5 @@
     <color name="secondaryText">@android:color/darker_gray</color>
 
     <color name="lightGreyBackground">#ffdddddd</color>
+    <color name="darkerGreyBackground">#ffcccccc</color>
 </resources>

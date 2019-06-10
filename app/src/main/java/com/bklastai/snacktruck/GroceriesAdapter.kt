@@ -18,7 +18,7 @@ class GroceriesAdapter(var groceries: Array<Grocery>) : RecyclerView.Adapter<Gro
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroceriesViewHolder {
         return GroceriesViewHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.truck_list_item, parent, false) as CheckBox)
+                .inflate(R.layout.grocery_list_item, parent, false) as CheckBox)
     }
 
     override fun onBindViewHolder(holder: GroceriesViewHolder, position: Int) {
@@ -31,10 +31,17 @@ class GroceriesAdapter(var groceries: Array<Grocery>) : RecyclerView.Adapter<Gro
     }
 
     fun setValues(newDataset: Array<Grocery>) {
-        // what if some groceries are already selected?
+        // what if some purchasedGroceries are already selected?
         groceries = newDataset
         notifyDataSetChanged()
     }
 
     override fun getItemCount() = groceries.size
+
+    fun onOrderConfirmed() {
+        for (grocery in groceries) {
+            grocery.isSelected = false
+        }
+        notifyDataSetChanged()
+    }
 }

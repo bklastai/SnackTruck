@@ -13,7 +13,7 @@ class TrucksActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.truck_rv).apply {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
-            this.adapter = TruckListAdapter(listOf("Truck 1", "Truck 2", "Truck 3").toTypedArray())
+            this.adapter = TruckListAdapter(listOf("Pike's Place", "Capitol Hill", "U District").toTypedArray())
         }
     }
 }
